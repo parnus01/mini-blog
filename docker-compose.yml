@@ -1,0 +1,36 @@
+version: '3.4'
+services:
+  backend:
+    build: .
+    ports:
+      - 5000:5000
+    environment:
+      PORT: 5000
+      FLASK_DEBUG: 0
+    links:
+      - db
+    depends_on:
+      - db
+    volumes:
+      - ./backend:/code
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile-fe
+      target: 'develop-stage'
+    ports:
+      - '8080:8080'
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules/
+    command: /bin/sh -c "yarn serve"
+
+  db:
+    image: mysql:5.7
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - ./db:/docker-entrypoint-initdb.d/:ro
